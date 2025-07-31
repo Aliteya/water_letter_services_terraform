@@ -4,3 +4,7 @@ terraform.tfstate*
 
 # Local .terraform directories
 **/.terraform/*
+
+dev/plan.log
+modules/alb
+modules/cloudfront

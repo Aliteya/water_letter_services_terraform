@@ -21,24 +21,3 @@ variable "nat_instance_sg_id" {
 variable "llm_credentials" {
   type = map(string)
 }
-
-variable "gitlab_tls_url" {
-  type = string
-}
-
-variable "gitlab_url" {
-  type = string
-}
-
-variable "aud_value" {
-  type = string
-}
-
-variable "match_field" {
-  type    = string
-  default = "aud"
-}
-
-variable "match_value" {
-  type = list(any)
-}
