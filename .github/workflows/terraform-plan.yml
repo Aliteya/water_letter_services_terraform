@@ -4,18 +4,13 @@ on:
   push:
     branches:
       - main
-    paths:
-      - dev/**
   workflow_dispatch:
 
 jobs:
   infra_plan:
     name: Terraform infra_plan
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-        working-directory: ./dev
+
     steps:
     - name: Checkout Repo
       uses: actions/checkout@v4
@@ -56,11 +51,6 @@ jobs:
     permissions:
       id-token: write
       contents: read
-
-    defaults:
-      run:
-        shell: bash
-        working-directory: ./dev
 
     steps:
     - name: Checkout Repo
