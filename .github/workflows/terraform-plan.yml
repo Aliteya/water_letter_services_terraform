@@ -10,6 +10,9 @@ jobs:
   infra_plan:
     name: Terraform infra_plan
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./dev 
 
     steps:
     - name: Checkout Repo
@@ -46,6 +49,9 @@ jobs:
     needs: infra_plan
     name: Terraform apply
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./dev 
     environment: dev
 
     permissions:
