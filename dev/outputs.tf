@@ -16,7 +16,7 @@ output "DB_ENDPOINT" {
 output "DB_USERNAME" {
   description = "Username for the RDS database."
   value       = module.database.rds_username
-  sensitive = true
+  sensitive   = true
 }
 
 output "DB_PASSWORD" {

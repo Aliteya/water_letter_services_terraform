@@ -1,44 +1,44 @@
 variable "region" {
-    type = string
+  type = string
 }
 
 variable "vpc_id" {
-    type = string
+  type = string
 }
 
 variable "public_subnet_ids" {
-    type = list(string)
+  type = list(string)
 }
 
 variable "private_subnet_ids" {
-    type = list(string)
+  type = list(string)
 }
 
 variable "nat_instance_sg_id" {
-    type = string 
+  type = string
 }
 
 variable "llm_credentials" {
-    type = map(string)
+  type = map(string)
 }
 
 variable "gitlab_tls_url" {
-    type = string
+  type = string
 }
 
 variable "gitlab_url" {
-    type = string
+  type = string
 }
 
 variable "aud_value" {
-    type = string
+  type = string
 }
 
 variable "match_field" {
-    type = string
-    default = "aud"
+  type    = string
+  default = "aud"
 }
 
 variable "match_value" {
-    type = list(any)
+  type = list(any)
 }
