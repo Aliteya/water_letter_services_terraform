@@ -161,17 +161,6 @@ resource "aws_ecs_cluster_capacity_providers" "main-cp" {
   }
 }
 
-resource "aws_ecr_repository" "services" {
-  for_each             = local.services
-  name                 = "demo-${each.key}"
-  image_tag_mutability = "MUTABLE"
-  force_delete         = true
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
-
 resource "aws_iam_role" "ecs_task_role" {
   name_prefix        = "demo-ecs-task-role"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_doc.json
@@ -248,10 +237,10 @@ resource "aws_ecs_task_definition" "apps" {
 
   container_definitions = jsonencode([{
     name = each.key
-    # image = "${aws_ecr_repository.services[each.key].repository_url}:latest",
-    image        = "public.ecr.aws/docker/library/nginx:stable-perl",
-    essential    = true,
-    portMappings = [{ containerPort = 80, hostPort = 80 }],
+    image = "${var.repository_url[each.key]}:latest"
+    # image = "public.ecr.aws/docker/library/hello-world:latest"
+    essential    = true
+    portMappings = [{ containerPort = 80, hostPort = 80 }]
     secrets      = each.value.secrets
 
     logConfiguration = {
@@ -313,7 +302,4 @@ resource "aws_ecs_service" "apps" {
     field = "attribute:ecs.availability-zone"
   }
 
-  lifecycle {
-    ignore_changes = [desired_count]
-  }
 }

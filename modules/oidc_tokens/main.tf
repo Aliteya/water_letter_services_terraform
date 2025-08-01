@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 data "tls_certificate" "github" {
   url = "tls://${var.github_url}:443"
 }
@@ -33,9 +35,14 @@ resource "aws_iam_policy" "ecs_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        "Action" : ["ecr:GetAuthorizationToken", "ecr:BatchCheckLayerAvailability", "ecr:CompleteLayerUpload", "ecr:InitiateLayerUpload", "ecr:PutImage", "ecr:UploadLayerPart"]
         "Effect" : "Allow"
+        "Action" : ["ecr:GetAuthorizationToken", "ecr:BatchCheckLayerAvailability", "ecr:CompleteLayerUpload", "ecr:InitiateLayerUpload", "ecr:PutImage", "ecr:UploadLayerPart"]
         "Resource" : "*"
+      },
+      {
+        "Effect" : "Allow"
+        "Action": ["ecs:UpdateService"]
+        "Resource": "arn:aws:ecs:${var.region}:${data.aws_caller_identity.current.account_id}:service/demo-cluster/*"
       }
     ]
   })

@@ -21,3 +21,7 @@ variable "nat_instance_sg_id" {
 variable "llm_credentials" {
   type = map(string)
 }
+
+variable "repository_url" {
+  type = map(string)
+}

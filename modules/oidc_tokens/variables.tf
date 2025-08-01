@@ -1,8 +1,3 @@
-variable "profile" {
-  type    = string
-  default = "trainee"
-}
-
 variable "region" {
   type    = string
   default = "eu-north-1"

@@ -13,6 +13,7 @@ module "bastion" {
   private_subnet_ids = module.vpc.private_subnet_ids
 }
 
+
 module "ecs" {
   source             = "../modules/ecs"
   region             = var.region
@@ -21,19 +22,11 @@ module "ecs" {
   private_subnet_ids = module.vpc.private_subnet_ids
   public_subnet_ids  = module.vpc.public_subnet_ids
   nat_instance_sg_id = module.bastion.nat_instance_sg_id
+  repository_url = var.repository_url
   depends_on = [
     module.vpc
   ]
 }
-
-module "oidc_tokens" {
-  source      = "../modules/oidc_tokens"
-  github_url  = var.github_url
-  aud_value   = var.aud_value
-  match_field = var.match_field
-  match_value = var.match_value
-}
-
 
 module "database" {
   source               = "../modules/database"

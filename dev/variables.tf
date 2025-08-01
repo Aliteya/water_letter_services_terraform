@@ -26,18 +26,6 @@ variable "llm_credentials" {
   type = map(string)
 }
 
-variable "github_url" {
-  type = string
-}
-
-variable "aud_value" {
-  type = string
-}
-
-variable "match_field" {
-  type = string
-}
-
-variable "match_value" {
+variable "repository_url" {
   type = map(string)
 }
