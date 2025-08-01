@@ -25,3 +25,7 @@ variable "llm_credentials" {
 variable "repository_url" {
   type = map(string)
 }
+
+variable "sqs_arn" {
+  type = string
+}

@@ -29,3 +29,8 @@ variable "llm_credentials" {
 variable "repository_url" {
   type = map(string)
 }
+
+
+variable "lambda_repository_url" {
+  type = map(string)
+}

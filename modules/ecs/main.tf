@@ -26,39 +26,31 @@ locals {
         { "name" = "PROVIDER", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/llm/PROVIDER" },
         { "name" = "MODEL_NAME", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/llm/MODEL_NAME" },
         { "name" = "OPENROUTER_TOKEN", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/llm/OPENROUTER_TOKEN" },
-        { "name" = "SQS_QUEUE_URL", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/llm/SQS_QUEUE_URL" },
+        { "name" = "SQS_QUEUE_URL", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/sqs/SQS_QUEUE_URL" },
         { "name" = "SERVICE_2_URL", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/llm/SERVICE_2_URL" },
       ]
       environment = [
         { name = "AWS_REGION", value = data.aws_region.current.id }
       ]
     }
-    subscriber = {
-      family         = "demo-subscriber"
-      container_port = 80
-      image_tag      = "latest"
-      log_prefix     = "subscriber"
-      secrets = [
-        { "name" = "DATABASE_USER", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_USER" },
-        { "name" = "DATABASE_NAME", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_NAME" },
-        { "name" = "DATABASE_PORT", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_PORT" },
-        { "name" = "DATABASE_HOST", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_HOST" },
-        { "name" = "DATABASE_PASSWORD", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_PASSWORD" },
-        { "name" = "SQS_QUEUE_URL", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/llm/SQS_QUEUE_URL" },
-      ]
-      environment = [
-        { name = "AWS_REGION", value = data.aws_region.current.id }
-      ]
-    }
+    # subscriber = {
+    #   family         = "demo-subscriber"
+    #   container_port = 80
+    #   image_tag      = "latest"
+    #   log_prefix     = "subscriber"
+    #   secrets = [
+    #     { "name" = "DATABASE_USER", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_USER" },
+    #     { "name" = "DATABASE_NAME", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_NAME" },
+    #     { "name" = "DATABASE_PORT", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_PORT" },
+    #     { "name" = "DATABASE_HOST", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_HOST" },
+    #     { "name" = "DATABASE_PASSWORD", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_PASSWORD" },
+    #     { "name" = "SQS_QUEUE_URL", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/llm/SQS_QUEUE_URL" },
+    #   ]
+    #   environment = [
+    #     { name = "AWS_REGION", value = data.aws_region.current.id }
+    #   ]
+    # }
   }
-}
-
-resource "aws_sqs_queue" "log_queue" {
-  name                      = "service3-sqs"
-  delay_seconds             = 20
-  max_message_size          = 1096
-  message_retention_seconds = 86400
-  receive_wait_time_seconds = 10
 }
 
 resource "aws_ecs_cluster" "main_cluster" {
@@ -126,8 +118,8 @@ resource "aws_launch_template" "apologize-dev-lt" {
 resource "aws_autoscaling_group" "ecs" {
   name_prefix               = "demo-ecs-asg-"
   vpc_zone_identifier       = var.private_subnet_ids
-  min_size                  = 3
-  max_size                  = 3
+  min_size                  = 2
+  max_size                  = 2
   health_check_grace_period = 0
   health_check_type         = "EC2"
   protect_from_scale_in     = false
@@ -187,8 +179,8 @@ resource "aws_iam_policy" "task_policy" {
       },
       {
         "Effect" : "Allow"
-        "Action" : ["sqs:DeleteMessage", "sqs:GetQueueUrl", "sqs:GetQueueAttributes", "sqs:ReceiveMessage", "sqs:SendMessage"]
-        "Resource" : aws_sqs_queue.log_queue.arn
+        "Action" : ["sqs:DeleteMessage", "sqs:GetQueueUrl", "sqs:GetQueueAttributes", "sqs:SendMessage"]
+        "Resource" : var.sqs_arn
       }
     ]
   })
@@ -246,7 +238,6 @@ resource "aws_ecs_task_definition" "apps" {
   container_definitions = jsonencode([{
     name  = each.key
     image = "${var.repository_url[each.key]}:latest"
-    # image = "public.ecr.aws/docker/library/hello-world:latest"
     essential    = true
     portMappings = [{ containerPort = 80, hostPort = 80 }]
     secrets      = each.value.secrets
@@ -310,5 +301,4 @@ resource "aws_ecs_service" "apps" {
     type  = "spread"
     field = "attribute:ecs.availability-zone"
   }
-
 }

@@ -44,9 +44,7 @@ resource "aws_security_group" "allow_postgres_traffic" {
     from_port   = tonumber(var.database_credentials["DATABASE_PORT"])
     to_port     = tonumber(var.database_credentials["DATABASE_PORT"])
     protocol    = "tcp"
-    # ПОТОМ ПОМЕНЯТЬ ФИЛЬТРАЦИЮ ПО CIDR НА ФИЛЬТРАЦИЮ ПО SG ECS
-    # cidr_blocks = var.private_subnet_cidrs
-    security_groups = [var.ecs_tasks_sg_id]
+    security_groups = [var.lambda_sg_id]
   }
   egress {
     from_port   = 0

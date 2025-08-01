@@ -10,7 +10,7 @@ variable "private_subnet_ids" {
   type = list(string)
 }
 
-variable "ecs_tasks_sg_id" {
+variable "lambda_sg_id" {
   type = string
 }
 
