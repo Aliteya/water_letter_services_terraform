@@ -1,6 +1,6 @@
 module "ecr" {
-    source = "../modules/ecr"
-    services = var.services
+  source   = "../modules/ecr"
+  services = var.services
 }
 module "oidc_tokens" {
   source      = "../modules/oidc_tokens"

@@ -22,7 +22,7 @@ module "ecs" {
   private_subnet_ids = module.vpc.private_subnet_ids
   public_subnet_ids  = module.vpc.public_subnet_ids
   nat_instance_sg_id = module.bastion.nat_instance_sg_id
-  repository_url = var.repository_url
+  repository_url     = var.repository_url
   depends_on = [
     module.vpc
   ]

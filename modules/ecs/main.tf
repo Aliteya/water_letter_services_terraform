@@ -236,7 +236,7 @@ resource "aws_ecs_task_definition" "apps" {
   memory             = 256
 
   container_definitions = jsonencode([{
-    name = each.key
+    name  = each.key
     image = "${var.repository_url[each.key]}:latest"
     # image = "public.ecr.aws/docker/library/hello-world:latest"
     essential    = true

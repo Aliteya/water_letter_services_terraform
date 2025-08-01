@@ -41,8 +41,8 @@ resource "aws_iam_policy" "ecs_policy" {
       },
       {
         "Effect" : "Allow"
-        "Action": ["ecs:UpdateService"]
-        "Resource": "arn:aws:ecs:${var.region}:${data.aws_caller_identity.current.account_id}:service/demo-cluster/*"
+        "Action" : ["ecs:UpdateService"]
+        "Resource" : "arn:aws:ecs:${var.region}:${data.aws_caller_identity.current.account_id}:service/demo-cluster/*"
       }
     ]
   })
