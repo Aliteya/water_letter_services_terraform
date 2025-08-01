@@ -15,6 +15,7 @@ locals {
         { "name" = "MODEL_NAME", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/llm/MODEL_NAME" },
         { "name" = "OPENROUTER_TOKEN", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/llm/OPENROUTER_TOKEN" }
       ]
+      environment = []
     }
     publisher = {
       family         = "demo-publisher"
@@ -26,7 +27,10 @@ locals {
         { "name" = "MODEL_NAME", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/llm/MODEL_NAME" },
         { "name" = "OPENROUTER_TOKEN", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/llm/OPENROUTER_TOKEN" },
         { "name" = "SQS_QUEUE_URL", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/llm/SQS_QUEUE_URL" },
-        { "name" = "SERVICE_2_URL", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/llm/SERVICE_2_URL" }
+        { "name" = "SERVICE_2_URL", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/llm/SERVICE_2_URL" },
+      ]
+      environment = [
+        { name = "AWS_REGION", value = data.aws_region.current.id }
       ]
     }
     subscriber = {
@@ -38,9 +42,12 @@ locals {
         { "name" = "DATABASE_USER", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_USER" },
         { "name" = "DATABASE_NAME", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_NAME" },
         { "name" = "DATABASE_PORT", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_PORT" },
-        { "name" = "DATABASE_HOST", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/endpoint" },
+        { "name" = "DATABASE_HOST", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_HOST" },
         { "name" = "DATABASE_PASSWORD", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_PASSWORD" },
-        { "name" = "SQS_QUEUE_URL", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/llm/SQS_QUEUE_URL" }
+        { "name" = "SQS_QUEUE_URL", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/llm/SQS_QUEUE_URL" },
+      ]
+      environment = [
+        { name = "AWS_REGION", value = data.aws_region.current.id }
       ]
     }
   }
@@ -205,7 +212,7 @@ resource "aws_iam_policy" "exec_task_policy" {
     Statement = [
       {
         "Effect" : "Allow"
-        "Action" : ["ssm:GetParameters"]
+        "Action" : ["ssm:GetParameters", "ssm:GetParameter"]
         "Resource" : "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/*"
       }
     ]
@@ -243,6 +250,7 @@ resource "aws_ecs_task_definition" "apps" {
     essential    = true
     portMappings = [{ containerPort = 80, hostPort = 80 }]
     secrets      = each.value.secrets
+    environment  = each.value.environment
 
     logConfiguration = {
       logDriver = "awslogs",

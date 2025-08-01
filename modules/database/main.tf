@@ -75,7 +75,7 @@ resource "aws_db_instance" "log_db" {
 }
 
 resource "aws_ssm_parameter" "endpoint_parameter" {
-  name  = "${local.name_prefix}/endpoint"
-  type  = "String"
+  name  = "/database/DATABASE_HOST"
+  type  = "SecureString"
   value = aws_db_instance.log_db.address
 }
