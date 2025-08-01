@@ -38,6 +38,7 @@ locals {
         { "name" = "DATABASE_USER", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_USER" },
         { "name" = "DATABASE_NAME", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_NAME" },
         { "name" = "DATABASE_PORT", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_PORT" },
+        { "name" = "DATABASE_HOST", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/endpoint" },
         { "name" = "DATABASE_PASSWORD", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_PASSWORD" },
         { "name" = "SQS_QUEUE_URL", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/llm/SQS_QUEUE_URL" }
       ]
