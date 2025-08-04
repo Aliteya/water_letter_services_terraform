@@ -1,17 +1,17 @@
 variable "region" {
-    type = string
+  type = string
 }
 
 variable "vpc_id" {
-    type = string
+  type = string
 }
 
 variable "private_subnet_ids" {
-    type = list(string)
+  type = list(string)
 }
 
 variable "repository_url" {
-    type = map(string)
+  type = map(string)
 }
 
 variable "sqs_arn" {

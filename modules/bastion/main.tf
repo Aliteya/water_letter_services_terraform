@@ -24,11 +24,10 @@ resource "aws_security_group" "nat_instance_sg" {
   vpc_id      = var.vpc_id
   description = "Security group for NAT Instance"
   ingress {
-    description = "Ingress CIDR(NAT)"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    #ЗАМЕНИТЬ НА SG CЕРВИСОВ, КОГДА ПОЯВИТСЯ ECS
+    description      = "Ingress CIDR(NAT)"
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
     cidr_blocks      = var.private_subnet_cidrs
     ipv6_cidr_blocks = []
     prefix_list_ids  = []

@@ -40,11 +40,11 @@ resource "aws_ssm_parameter" "database_credentials" {
 resource "aws_security_group" "allow_postgres_traffic" {
   vpc_id = var.vpc_id
   ingress {
-    description = "Allow Postgres"
-    from_port   = tonumber(var.database_credentials["DATABASE_PORT"])
-    to_port     = tonumber(var.database_credentials["DATABASE_PORT"])
-    protocol    = "tcp"
-    security_groups = [var.lambda_sg_id]
+    description     = "Allow Postgres"
+    from_port       = tonumber(var.database_credentials["DATABASE_PORT"])
+    to_port         = tonumber(var.database_credentials["DATABASE_PORT"])
+    protocol        = "tcp"
+    security_groups = [var.lambda_sg_id, var.nat_instance_sg_id]
   }
   egress {
     from_port   = 0

@@ -236,8 +236,8 @@ resource "aws_ecs_task_definition" "apps" {
   memory             = 256
 
   container_definitions = jsonencode([{
-    name  = each.key
-    image = "${var.repository_url[each.key]}:latest"
+    name         = each.key
+    image        = "${var.repository_url[each.key]}:latest"
     essential    = true
     portMappings = [{ containerPort = 80, hostPort = 80 }]
     secrets      = each.value.secrets
