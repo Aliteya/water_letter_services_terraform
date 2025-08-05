@@ -1,16 +1,9 @@
 locals {
   app_port = 80
 }
-
 resource "aws_security_group" "alb" {
   name   = "alb-security-group"
   vpc_id = var.vpc_id
-  # ingress {
-  #   protocol    = "tcp"
-  #   from_port   = 80
-  #   to_port     = local.app_port
-  #   cidr_blocks = ["0.0.0.0/0"]
-  # }
   dynamic "ingress" {
     for_each = [80, 443]
     content {
@@ -60,16 +53,24 @@ resource "aws_alb_listener" "listener" {
   protocol          = "HTTP"
 
   default_action {
-    target_group_arn = aws_lb_target_group.target_ip_group.arn
-    type             = "forward"
+    type             = "redirect"
+    redirect {
+      protocol = "HTTPS"
+      port = "443"
+      status_code = "HTTP_301"
+    }
   }
 }
 
-resource "aws_acm_certificate" "cert" {
-  domain_name       = var.domain_name
-  validation_method = var.validation_method
+resource "aws_alb_listener" "secure_listener" {
+  load_balancer_arn = aws_lb.apologize_alb.arn
+  port              = "443"
+  protocol          = "HTTPS"
 
-  lifecycle {
-    create_before_destroy = true
+  certificate_arn =  var.certificate_arn
+
+  default_action {
+    target_group_arn = aws_lb_target_group.target_ip_group.arn
+    type             = "forward"
   }
 }

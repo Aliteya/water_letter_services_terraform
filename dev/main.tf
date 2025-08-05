@@ -36,12 +36,29 @@ module "sqs" {
 #   lambda_sg_id         = module.lambda.lambda_sg_id
 # }
 
+module "acm" {
+  source = "../modules/acm"
+  domain_name       = var.domain_name
+  validation_method = var.validation_method
+  account_id = var.cloudflare_id
+}
+
 module "alb" {
   source            = "../modules/alb"
   vpc_id            = module.vpc.vpc_id
   public_subnet_ids = module.vpc.public_subnet_ids
-  domain_name       = var.domain_name
-  validation_method = var.validation_method
+  certificate_arn = module.acm.certificate_arn
+}
+
+
+resource "cloudflare_dns_record" "alb_record" {
+  zone_id = module.acm.zone_id
+  ttl = 3600
+  name = "@"
+  type = "CNAME"
+  comment = "General proxy record"
+  content = module.alb.alb_url
+  proxied = true
 }
 
 module "ecs" {

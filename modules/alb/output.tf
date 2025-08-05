@@ -9,7 +9,3 @@ output "target_group_arn" {
 output "alb_url" {
   value = aws_lb.apologize_alb.dns_name
 }
-
-output "certificate_arn" {
-  value = aws_acm_certificate.cert.arn
-}

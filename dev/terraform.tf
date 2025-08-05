@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 6.2.0"
     }
+    cloudflare = {
+      source = "cloudflare/cloudflare"
+      version = "~> 5"
+    }
   }
   required_version = "~> 1.12.1"
 }
@@ -17,4 +21,8 @@ provider "aws" {
       Env   = var.env
     }
   }
+}
+
+provider "cloudflare" {
+  api_token = var.cloudflare_api_token
 }

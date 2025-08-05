@@ -13,6 +13,14 @@ variable "env" {
   default = "dev"
 }
 
+variable "cloudflare_id" {
+  type = string
+}
+
+variable "cloudflare_api_token" {
+  type = string
+}
+
 variable "database_credentials" {
   type = map(string)
   default = {
