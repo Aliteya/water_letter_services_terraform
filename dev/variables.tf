@@ -34,3 +34,11 @@ variable "repository_url" {
 variable "lambda_repository_url" {
   type = map(string)
 }
+
+variable "domain_name" {
+  type = string
+}
+
+variable "validation_method" {
+  type = string
+}

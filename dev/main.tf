@@ -17,36 +17,46 @@ module "sqs" {
   source = "../modules/sqs"
 }
 
-module "lambda" {
-  source             = "../modules/lambda"
-  region             = var.region
-  vpc_id             = module.vpc.vpc_id
-  private_subnet_ids = module.vpc.private_subnet_ids
-  sqs_arn            = module.sqs.sqs_arn
-  repository_url     = var.lambda_repository_url
-}
-
-module "database" {
-  source               = "../modules/database"
-  vpc_id               = module.vpc.vpc_id
-  nat_instance_sg_id   = module.bastion.nat_instance_sg_id
-  public_subnet_ids    = module.vpc.public_subnet_ids
-  private_subnet_ids   = module.vpc.private_subnet_ids
-  database_credentials = var.database_credentials
-  lambda_sg_id         = module.lambda.lambda_sg_id
-}
-
-# module "ecs" {
-#   source             = "../modules/ecs"
+# module "lambda" {
+#   source             = "../modules/lambda"
 #   region             = var.region
 #   vpc_id             = module.vpc.vpc_id
-#   llm_credentials    = var.llm_credentials
 #   private_subnet_ids = module.vpc.private_subnet_ids
-#   public_subnet_ids  = module.vpc.public_subnet_ids
-#   nat_instance_sg_id = module.bastion.nat_instance_sg_id
-#   repository_url     = var.repository_url
-#   sqs_arn = module.sqs.sqs_arn
+#   sqs_arn            = module.sqs.sqs_arn
+#   repository_url     = var.lambda_repository_url
 # }
+
+# module "database" {
+#   source               = "../modules/database"
+#   vpc_id               = module.vpc.vpc_id
+#   nat_instance_sg_id   = module.bastion.nat_instance_sg_id
+#   public_subnet_ids    = module.vpc.public_subnet_ids
+#   private_subnet_ids   = module.vpc.private_subnet_ids
+#   database_credentials = var.database_credentials
+#   lambda_sg_id         = module.lambda.lambda_sg_id
+# }
+
+module "alb" {
+  source            = "../modules/alb"
+  vpc_id            = module.vpc.vpc_id
+  public_subnet_ids = module.vpc.public_subnet_ids
+  domain_name       = var.domain_name
+  validation_method = var.validation_method
+}
+
+module "ecs" {
+  source             = "../modules/ecs"
+  region             = var.region
+  vpc_id             = module.vpc.vpc_id
+  llm_credentials    = var.llm_credentials
+  private_subnet_ids = module.vpc.private_subnet_ids
+  public_subnet_ids  = module.vpc.public_subnet_ids
+  nat_instance_sg_id = module.bastion.nat_instance_sg_id
+  repository_url     = var.repository_url
+  sqs_arn            = module.sqs.sqs_arn
+  target_group_arn   = module.alb.target_group_arn
+  alb_sg_id          = module.alb.alb_sg_id
+}
 
 resource "aws_route_table" "private_route_table" {
   vpc_id = module.vpc.vpc_id

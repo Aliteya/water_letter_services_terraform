@@ -6,10 +6,11 @@ locals {
   image_id      = data.aws_ssm_parameter.ecs_node_ami.value
   services = {
     processor = {
-      family         = "demo-processor"
-      container_port = 80
-      image_tag      = "latest"
-      log_prefix     = "processor"
+      use_load_balancer = false
+      family            = "demo-processor"
+      container_port    = 80
+      image_tag         = "latest"
+      log_prefix        = "processor"
       secrets = [
         { "name" = "PROVIDER", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/llm/PROVIDER" },
         { "name" = "MODEL_NAME", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/llm/MODEL_NAME" },
@@ -18,10 +19,11 @@ locals {
       environment = []
     }
     publisher = {
-      family         = "demo-publisher"
-      container_port = 80
-      image_tag      = "latest"
-      log_prefix     = "publisher"
+      use_load_balancer = true
+      family            = "demo-publisher"
+      container_port    = 80
+      image_tag         = "latest"
+      log_prefix        = "publisher"
       secrets = [
         { "name" = "PROVIDER", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/llm/PROVIDER" },
         { "name" = "MODEL_NAME", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/llm/MODEL_NAME" },
@@ -258,12 +260,12 @@ resource "aws_security_group" "ecs_tasks" {
   name   = "ecs-security-group"
   vpc_id = var.vpc_id
 
-  # ingress {
-  #     protocol = "tcp"
-  #     from_port = local.app_port
-  #     to_port = local.app_port
-  #     security_groups = [var.alb_sg_id]
-  # }
+  ingress {
+    protocol        = "tcp"
+    from_port       = local.app_port
+    to_port         = local.app_port
+    security_groups = [var.alb_sg_id]
+  }
   # ingress {
   #     from_port       = 0 
   #     to_port         = 0
@@ -300,5 +302,14 @@ resource "aws_ecs_service" "apps" {
   ordered_placement_strategy {
     type  = "spread"
     field = "attribute:ecs.availability-zone"
+  }
+
+  dynamic "load_balancer" {
+    for_each = each.value.use_load_balancer ? [1] : []
+    content {
+      target_group_arn = var.target_group_arn
+      container_name   = each.key
+      container_port   = 80
+    }
   }
 }

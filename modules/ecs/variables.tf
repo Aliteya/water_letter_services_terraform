@@ -18,6 +18,10 @@ variable "nat_instance_sg_id" {
   type = string
 }
 
+variable "alb_sg_id" {
+  type = string
+}
+
 variable "llm_credentials" {
   type = map(string)
 }
@@ -27,5 +31,9 @@ variable "repository_url" {
 }
 
 variable "sqs_arn" {
+  type = string
+}
+
+variable "target_group_arn" {
   type = string
 }
