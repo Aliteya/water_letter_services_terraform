@@ -53,10 +53,10 @@ resource "aws_alb_listener" "listener" {
   protocol          = "HTTP"
 
   default_action {
-    type             = "redirect"
+    type = "redirect"
     redirect {
-      protocol = "HTTPS"
-      port = "443"
+      protocol    = "HTTPS"
+      port        = "443"
       status_code = "HTTP_301"
     }
   }
@@ -67,10 +67,34 @@ resource "aws_alb_listener" "secure_listener" {
   port              = "443"
   protocol          = "HTTPS"
 
-  certificate_arn =  var.certificate_arn
+  certificate_arn = var.certificate_arn
+  # default_action {
+  #   type = "fixed-response"
 
+  #   fixed_response {
+  #     content_type = "text/plain"
+  #     message_body = "This endpoint is not found."
+  #     status_code  = "404"
+  #   }
+  # }
   default_action {
     target_group_arn = aws_lb_target_group.target_ip_group.arn
     type             = "forward"
   }
 }
+
+# resource "aws_lb_listener_rule" "api_rule" {
+#   listener_arn = aws_alb_listener.secure_listener.arn
+#   priority = 100
+
+#   action {
+#     type = "forward"
+#     target_group_arn = aws_lb_target_group.target_ip_group.arn
+#   }
+
+#   condition {
+#     path_pattern {
+#       values = ["/api/*"]
+#     }
+#   }
+# }

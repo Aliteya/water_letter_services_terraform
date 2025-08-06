@@ -28,24 +28,24 @@ data "aws_iam_policy_document" "assume-role-policy" {
   }
 }
 
-resource "aws_iam_policy" "ecs_policy" {
-  name = "github-ci-ecr-push-policy"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        "Effect" : "Allow"
-        "Action" : ["ecr:GetAuthorizationToken", "ecr:BatchCheckLayerAvailability", "ecr:CompleteLayerUpload", "ecr:InitiateLayerUpload", "ecr:PutImage", "ecr:UploadLayerPart"]
-        "Resource" : "*"
-      },
-      {
-        "Effect" : "Allow"
-        "Action" : ["ecs:UpdateService"]
-        "Resource" : "arn:aws:ecs:${var.region}:${data.aws_caller_identity.current.account_id}:service/demo-cluster/*"
-      }
-    ]
-  })
+resource "aws_iam_policy" "policy" {
+  name   = "github-ci-ecr-push-policy"
+  policy = var.iam_policy_json
+  # policy = jsonencode({
+  #   Version = "2012-10-17"
+  #   Statement = [
+  #     {
+  #       "Effect" : "Allow"
+  #       "Action" : ["ecr:GetAuthorizationToken", "ecr:BatchCheckLayerAvailability", "ecr:CompleteLayerUpload", "ecr:InitiateLayerUpload", "ecr:PutImage", "ecr:UploadLayerPart"]
+  #       "Resource" : "*"
+  #     },
+  #     {
+  #       "Effect" : "Allow"
+  #       "Action" : ["ecs:UpdateService"]
+  #       "Resource" : "arn:aws:ecs:${var.region}:${data.aws_caller_identity.current.account_id}:service/demo-cluster/*"
+  #     }
+  #   ]
+  # })
 }
 
 resource "aws_iam_role" "github_ci" {
@@ -54,8 +54,8 @@ resource "aws_iam_role" "github_ci" {
   assume_role_policy = data.aws_iam_policy_document.assume-role-policy[each.key].json
 }
 
-resource "aws_iam_role_policy_attachment" "ecs_acceses" {
+resource "aws_iam_role_policy_attachment" "attach" {
   for_each   = aws_iam_role.github_ci
   role       = each.value.name
-  policy_arn = aws_iam_policy.ecs_policy.arn
+  policy_arn = aws_iam_policy.policy.arn
 }

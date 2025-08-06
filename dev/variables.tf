@@ -13,6 +13,22 @@ variable "env" {
   default = "dev"
 }
 
+variable "github_url" {
+  type = string
+}
+
+variable "aud_value" {
+  type = string
+}
+
+variable "match_field" {
+  type = string
+}
+
+variable "match_value" {
+  type = map(string)
+}
+
 variable "cloudflare_id" {
   type = string
 }

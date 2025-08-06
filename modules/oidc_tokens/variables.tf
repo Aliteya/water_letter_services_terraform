@@ -23,3 +23,7 @@ variable "match_field" {
 variable "match_value" {
   type = map(string)
 }
+
+variable "iam_policy_json" {
+  type = string
+}

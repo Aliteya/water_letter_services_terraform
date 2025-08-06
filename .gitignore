@@ -6,4 +6,3 @@ terraform.tfstate*
 **/.terraform/*
 
 dev/plan.log
-modules/cloudfront
