@@ -27,3 +27,7 @@ variable "match_value" {
 variable "iam_policy_json" {
   type = string
 }
+
+variable "openid_connect_provider_arn" {
+  type = string
+}

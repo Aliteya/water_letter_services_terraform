@@ -1,5 +1,13 @@
 output "ECS_ROLE_ARN" {
-  value = module.oidc_tokens.ROLE_ARN
+  value = module.oidc_tokens_backend.ROLE_ARN
+}
+
+output "S3_ROLE_ARN" {
+  value = module.oidc_tokens_frontend.ROLE_ARN
+}
+
+output "S3_BUCKET_NAME" {
+  value = module.s3.bucket_id
 }
 
 output "ECR_URL" {

@@ -10,7 +10,11 @@ variable "match_field" {
   type = string
 }
 
-variable "match_value" {
+variable "match_value_back" {
+  type = map(string)
+}
+
+variable "match_value_front" {
   type = map(string)
 }
 
