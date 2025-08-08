@@ -42,7 +42,7 @@ module "oidc_tokens_backend" {
 }
 
 module "s3" {
-  source  = "../modules/s3"
+  source = "../modules/s3"
 }
 
 module "oidc_tokens_frontend" {
@@ -69,6 +69,12 @@ module "oidc_tokens_frontend" {
           "s3:DeleteObject"
         ],
         "Resource" : "arn:aws:s3:::${module.s3.bucket_id}/*"
+      },
+      {
+        "Sid" : "CloudfrontInvalidation",
+        "Effect" : "Allow",
+        "Action" : "cloudfront:CreateInvalidation",
+        "Resource" : "*"
       }
     ]
   })

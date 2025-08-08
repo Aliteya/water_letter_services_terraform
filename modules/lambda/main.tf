@@ -23,12 +23,12 @@ resource "aws_security_group" "lambda_sg" {
 
 }
 
-data "aws_iam_policy_document" "lambda_role_doc"{
+data "aws_iam_policy_document" "lambda_role_doc" {
   statement {
     actions = ["sts:AssumeRole"]
-    effect = "Allow"
+    effect  = "Allow"
     principals {
-      type = "Service"
+      type        = "Service"
       identifiers = ["lambda.amazonaws.com"]
     }
   }

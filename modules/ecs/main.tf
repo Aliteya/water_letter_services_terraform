@@ -86,8 +86,8 @@ resource "aws_launch_template" "apologize-dev-lt" {
   iam_instance_profile {
     arn = aws_iam_instance_profile.ecs_node.arn
   }
-  monitoring { 
-    enabled = true 
+  monitoring {
+    enabled = true
   }
   user_data = base64encode(<<-EOF
       #!/bin/bash
@@ -249,8 +249,8 @@ resource "aws_security_group" "ecs_tasks" {
   }
   ingress {
     description = "Allow tasks to communicate with each other"
-    protocol    = "-1" 
-    from_port   = 0   
+    protocol    = "-1"
+    from_port   = 0
     to_port     = 0
     self        = true
   }
@@ -263,19 +263,19 @@ resource "aws_security_group" "ecs_tasks" {
 }
 
 resource "aws_service_discovery_private_dns_namespace" "local" {
-    name = "apologize.local"
-    vpc = var.vpc_id
+  name = "apologize.local"
+  vpc  = var.vpc_id
 }
 
 resource "aws_ecs_service" "apps" {
-  for_each             = local.services
-  cluster              = aws_ecs_cluster.main_cluster.id
-  name                 = each.key
-  task_definition      = aws_ecs_task_definition.apps[each.key].arn
-  desired_count        = 1
-  deployment_maximum_percent         = 100 
+  for_each                           = local.services
+  cluster                            = aws_ecs_cluster.main_cluster.id
+  name                               = each.key
+  task_definition                    = aws_ecs_task_definition.apps[each.key].arn
+  desired_count                      = 1
+  deployment_maximum_percent         = 100
   deployment_minimum_healthy_percent = 0
-  force_new_deployment = true
+  force_new_deployment               = true
 
   service_registries {
     registry_arn = aws_service_discovery_service.local[each.key].arn
@@ -309,12 +309,12 @@ resource "aws_ecs_service" "apps" {
 
 resource "aws_service_discovery_service" "local" {
   for_each = local.services
-  name = each.key
+  name     = each.key
 
   dns_config {
     namespace_id = aws_service_discovery_private_dns_namespace.local.id
     dns_records {
-      ttl = 10
+      ttl  = 10
       type = "A"
     }
   }

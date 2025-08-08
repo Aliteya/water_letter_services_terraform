@@ -76,9 +76,9 @@ module "ecs" {
 }
 
 module "cloudfront" {
-  source = "../modules/cloudfront"
-  bucket_id = var.bucket_name
-  bucket_arn = var.bucket_arn
+  source                      = "../modules/cloudfront"
+  bucket_id                   = var.bucket_name
+  bucket_arn                  = var.bucket_arn
   bucket_regional_domain_name = var.bucket_regional_domain_name
 }
 

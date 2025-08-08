@@ -28,8 +28,8 @@ data "aws_iam_policy_document" "assume-role-policy" {
 
 resource "aws_iam_policy" "policy" {
   for_each = var.match_value
-  name   = "github-ci-policy-${each.key}"
-  policy = var.iam_policy_json
+  name     = "github-ci-policy-${each.key}"
+  policy   = var.iam_policy_json
 }
 
 resource "aws_iam_role" "github_ci" {
