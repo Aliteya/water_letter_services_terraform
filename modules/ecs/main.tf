@@ -61,12 +61,6 @@ resource "aws_iam_instance_profile" "ecs_node" {
 resource "aws_security_group" "ecs_node_sg" {
   name_prefix = "demo-ecs-node-sg-"
   vpc_id      = var.vpc_id
-  # ingress {
-  #     from_port       = 0 
-  #     to_port         = 65535
-  #     protocol        = "tcp"
-  #     security_groups = [var.alb_sg_id]
-  # }
   ingress {
     description     = "Allow all traffic from the NAT instance"
     protocol        = "-1"
@@ -92,7 +86,9 @@ resource "aws_launch_template" "apologize-dev-lt" {
   iam_instance_profile {
     arn = aws_iam_instance_profile.ecs_node.arn
   }
-  monitoring { enabled = true }
+  monitoring { 
+    enabled = true 
+  }
   user_data = base64encode(<<-EOF
       #!/bin/bash
       echo ECS_CLUSTER=${aws_ecs_cluster.main_cluster.name} >> /etc/ecs/ecs.config;
@@ -258,18 +254,17 @@ resource "aws_security_group" "ecs_tasks" {
     to_port     = 0
     self        = true
   }
-  # ingress {
-  #     from_port       = 0 
-  #     to_port         = 0
-  #     protocol        = "-1"
-  #     cidr_blocks = ["0.0.0.0/0"]
-  # }
   egress {
     protocol    = "-1"
     from_port   = 0
     to_port     = 0
     cidr_blocks = ["0.0.0.0/0"]
   }
+}
+
+resource "aws_service_discovery_private_dns_namespace" "local" {
+    name = "apologize.local"
+    vpc = var.vpc_id
 }
 
 resource "aws_ecs_service" "apps" {
@@ -282,6 +277,9 @@ resource "aws_ecs_service" "apps" {
   deployment_minimum_healthy_percent = 0
   force_new_deployment = true
 
+  service_registries {
+    registry_arn = aws_service_discovery_service.local[each.key].arn
+  }
 
   network_configuration {
     security_groups = [aws_security_group.ecs_tasks.id]
@@ -308,3 +306,16 @@ resource "aws_ecs_service" "apps" {
     }
   }
 }
+
+resource "aws_service_discovery_service" "local" {
+  for_each = local.services
+  name = each.key
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.local.id
+    dns_records {
+      ttl = 10
+      type = "A"
+    }
+  }
+} 

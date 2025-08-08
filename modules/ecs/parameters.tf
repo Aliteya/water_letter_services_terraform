@@ -1,7 +1,7 @@
 resource "aws_ssm_parameter" "service2_url" {
   name  = "${local.name_prefix}/SERVICE_2_URL"
   type  = "SecureString"
-  value = "temp_url"
+  value = "http://${aws_service_discovery_service.local["processor"].name}.${aws_service_discovery_private_dns_namespace.local.name}/createLetter/"
 }
 
 resource "aws_ssm_parameter" "llm_parameters" {
