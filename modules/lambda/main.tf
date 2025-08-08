@@ -40,28 +40,42 @@ resource "aws_iam_role" "lambda_role" {
   assume_role_policy = data.aws_iam_policy_document.lambda_role_doc.json
 }
 
-resource "aws_iam_policy" "lambda_policy" {
-  name = "lambda_policy"
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        "Effect" : "Allow"
-        "Action" : ["ssm:GetParameters", "ssm:GetParameter"]
-        "Resource" : "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/*"
-      },
-      {
-        "Effect" : "Allow",
-        "Action" : ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueUrl", "sqs:GetQueueAttributes"]
-        "Resource" : var.sqs_arn
-      },
-      {
-        "Effect" : "Allow",
-        "Action" : ["ec2:CreateNetworkInterface", "ec2:DescribeNetworkInterfaces", "ec2:DescribeSubnets", "ec2:DeleteNetworkInterface", "ec2:AssignPrivateIpAddresses", "ec2:UnassignPrivateIpAddresses"]
-        "Resource" : "*"
-      }
+data "aws_iam_policy_document" "subscriber_document" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "ssm:GetParameters",
+      "ssm:GetParameter"
     ]
-  })
+    resources = ["arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/*"]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueUrl",
+      "sqs:GetQueueAttributes"
+    ]
+    resources = [var.sqs_arn]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "ec2:CreateNetworkInterface",
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:DescribeSubnets",
+      "ec2:DeleteNetworkInterface",
+      "ec2:AssignPrivateIpAddresses",
+      "ec2:UnassignPrivateIpAddresses"
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "lambda_policy" {
+  name   = "lambda_policy"
+  policy = data.aws_iam_policy_document.subscriber_document.json
 }
 
 data "aws_iam_policy" "lambda_basic_execution" {

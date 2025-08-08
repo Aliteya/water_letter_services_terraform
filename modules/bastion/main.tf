@@ -24,34 +24,34 @@ resource "aws_security_group" "nat_instance_sg" {
   vpc_id      = var.vpc_id
   description = "Security group for NAT Instance"
   ingress {
-    description      = "Ingress CIDR(NAT)"
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = var.private_subnet_cidrs
-    ipv6_cidr_blocks = []
-    prefix_list_ids  = []
-    security_groups  = []
+    description = "Ingress CIDR(NAT)"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = var.private_subnet_cidrs
+    # ipv6_cidr_blocks = []
+    # prefix_list_ids  = []
+    # security_groups  = []
   }
   ingress {
-    description      = "Ingress for SSH from everywhere"
-    from_port        = 22
-    to_port          = 22
-    protocol         = "tcp"
-    cidr_blocks      = [var.ec2_bastion_ingress_ip]
-    ipv6_cidr_blocks = []
-    prefix_list_ids  = []
-    security_groups  = []
+    description = "Ingress for SSH from everywhere"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.ec2_bastion_ingress_ip]
+    # ipv6_cidr_blocks = []
+    # prefix_list_ids  = []
+    # security_groups  = []
   }
   egress {
-    description      = "Default egress"
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    security_groups  = []
-    ipv6_cidr_blocks = []
-    prefix_list_ids  = []
+    description = "Default egress"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    # security_groups  = []
+    # ipv6_cidr_blocks = []
+    # prefix_list_ids  = []
   }
 
   tags = {

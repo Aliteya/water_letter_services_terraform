@@ -6,3 +6,4 @@ terraform.tfstate*
 **/.terraform/*
 
 dev/plan.log
+/train

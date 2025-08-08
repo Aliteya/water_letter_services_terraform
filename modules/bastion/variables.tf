@@ -7,11 +7,6 @@ variable "public_subnet_ids" {
   description = "Public Subnet IDs"
 }
 
-variable "private_subnet_ids" {
-  type        = list(string)
-  description = "Private Subnet IDs"
-}
-
 variable "private_subnet_cidrs" {
   type        = list(string)
   description = "Private Subnet CIDR values"

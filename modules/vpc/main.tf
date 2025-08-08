@@ -38,18 +38,6 @@ resource "aws_subnet" "private_subnets" {
   }
 }
 
-# resource "aws_subnet" "isolated_private_subnet" {
-#     vpc_id = aws_vpc.main.id
-#     count = 1
-#     cidr_block = var.isolated_subnet_cidr[count.index]
-
-#     availability_zone = var.azs[local.db_azs]
-
-#     tags = {
-#         Name = "Isolated private subnet"
-#     }
-# }
-
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
 
@@ -68,22 +56,8 @@ resource "aws_route_table" "second_route" {
     Name = "Apologize VPC second Route table"
   }
 }
-
-# resource "aws_route_table" "isolated_route" {
-#     vpc_id = aws_vpc.main.id
-
-#     tags = {
-#         Name = "Apologize VPC isolated Route table"
-#     }
-# }
-
 resource "aws_route_table_association" "public_subnet_asso" {
   route_table_id = aws_route_table.second_route.id
   count          = length(var.public_subnet_cidrs)
   subnet_id      = element(aws_subnet.public_subnets[*].id, count.index)
 }
-
-# resource "aws_route_table_association" "isolated_subnet_asso" {
-#     route_table_id = aws_route_table.isolated_route.id
-#     subnet_id = aws_subnet.isolated_private_subnet.id
-# }

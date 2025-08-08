@@ -1,15 +1,3 @@
-# data "tls_certificate" "github" {
-#   url = "tls://${var.github_url}:443"
-# }
-
-# resource "aws_iam_openid_connect_provider" "github" {
-#   url            = "https://${var.github_url}"
-#   client_id_list = [var.aud_value]
-#   thumbprint_list = [
-#     data.tls_certificate.github.certificates[length(data.tls_certificate.github.certificates) - 1].sha1_fingerprint
-#   ]
-# }
-
 data "aws_iam_policy_document" "assume-role-policy" {
   for_each = var.match_value
   statement {

@@ -1,12 +1,12 @@
-variable "region" {
-  type    = string
-  default = "eu-north-1"
-}
+# variable "region" {
+#   type    = string
+#   default = "eu-north-1"
+# }
 
-variable "env" {
-  type    = string
-  default = "dev"
-}
+# variable "env" {
+#   type    = string
+#   default = "dev"
+# }
 
 variable "github_url" {
   type = string

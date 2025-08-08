@@ -1,4 +1,4 @@
 variable "services" {
-  type        = map(any)
-  description = "A map of service configurations"
+  type        = list(string)
+  description = "A list of service names"
 }

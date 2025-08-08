@@ -1,6 +1,5 @@
 locals {
   name_prefix   = "/llm"
-  region        = var.region
   app_port      = 80
   instance_type = "t3.micro"
   image_id      = data.aws_ssm_parameter.ecs_node_ami.value
@@ -49,7 +48,7 @@ resource "aws_iam_role" "ecs_node_role" {
 
 resource "aws_iam_role_policy_attachment" "ecs_node_role_policy" {
   role       = aws_iam_role.ecs_node_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+  policy_arn = data.aws_iam_policy.ecs_node_role_document.arn
 }
 
 resource "aws_iam_instance_profile" "ecs_node" {
@@ -147,26 +146,9 @@ resource "aws_iam_role" "ecs_task_role" {
   assume_role_policy = data.aws_iam_policy_document.ecs_task_doc.json
 }
 
-# data "aws_iam_policy_document" ""
-
 resource "aws_iam_policy" "task_policy" {
-  name = "tasks_policy"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        "Effect" : "Allow"
-        "Action" : ["ssm:GetParameters", "ssm:GetParameter"]
-        "Resource" : "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/*"
-      },
-      {
-        "Effect" : "Allow"
-        "Action" : ["sqs:DeleteMessage", "sqs:GetQueueUrl", "sqs:GetQueueAttributes", "sqs:SendMessage"]
-        "Resource" : var.sqs_arn
-      }
-    ]
-  })
+  name   = "tasks_custom_policy"
+  policy = data.aws_iam_policy_document.custom_task_policy_document.json
 }
 
 resource "aws_iam_role_policy_attachment" "task_policy_attachment" {
@@ -180,18 +162,8 @@ resource "aws_iam_role" "ecs_exec_role" {
 }
 
 resource "aws_iam_policy" "exec_task_policy" {
-  name = "exec_tasks_policy"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        "Effect" : "Allow"
-        "Action" : ["ssm:GetParameters", "ssm:GetParameter"]
-        "Resource" : "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/*"
-      }
-    ]
-  })
+  name   = "exec_tasks_policy"
+  policy = data.aws_iam_policy_document.custom_exec_task_document.json
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_exec_role_policy" {
@@ -229,7 +201,7 @@ resource "aws_ecs_task_definition" "apps" {
     logConfiguration = {
       logDriver = "awslogs",
       options = {
-        "awslogs-region"        = "eu-north-1",
+        "awslogs-region"        = data.aws_region.current.id,
         "awslogs-group"         = aws_cloudwatch_log_group.ecs.name,
         "awslogs-stream-prefix" = each.value.log_prefix
       }

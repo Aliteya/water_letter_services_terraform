@@ -20,9 +20,3 @@ variable "azs" {
   description = "Availability Zones"
   default     = ["eu-north-1a", "eu-north-1b", "eu-north-1c"]
 }
-
-# variable "isolated_subnet_cidr" {
-#     type = list(string)
-#     description = "Isolated Private Subnet CIDR value"
-#     default = ["10.0.7.0/24"]
-# }
