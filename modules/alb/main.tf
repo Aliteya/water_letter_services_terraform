@@ -68,15 +68,7 @@ resource "aws_alb_listener" "secure_listener" {
   protocol          = "HTTPS"
 
   certificate_arn = var.certificate_arn
-  # default_action {
-  #   type = "fixed-response"
 
-  #   fixed_response {
-  #     content_type = "text/plain"
-  #     message_body = "This endpoint is not found."
-  #     status_code  = "404"
-  #   }
-  # }
   default_action {
     target_group_arn = aws_lb_target_group.target_ip_group.arn
     type             = "forward"

@@ -1,16 +1,4 @@
-variable "region" {
-  type = string
-}
-
-variable "s3_name" {
-  type = string
-}
-
-variable "bucket_domain_name" {
-  type = string
-}
-
-variable "domain_name" {
+variable "bucket_regional_domain_name" {
   type = string
 }
 

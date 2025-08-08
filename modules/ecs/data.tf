@@ -29,3 +29,8 @@ data "aws_iam_policy_document" "ecs_task_doc" {
     }
   }
 }
+
+
+data "aws_iam_policy" "ecs_basic_execution" {
+  arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}

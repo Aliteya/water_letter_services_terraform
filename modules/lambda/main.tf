@@ -23,22 +23,21 @@ resource "aws_security_group" "lambda_sg" {
 
 }
 
+data "aws_iam_policy_document" "lambda_role_doc"{
+  statement {
+    actions = ["sts:AssumeRole"]
+    effect = "Allow"
+    principals {
+      type = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+  }
+}
+
 resource "aws_iam_role" "lambda_role" {
   name = "lambda_execution_role"
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        "Effect" : "Allow",
-        "Action" : "sts:AssumeRole"
-        "Principal" : {
-          "Service" : "lambda.amazonaws.com"
-        }
-
-      }
-    ]
-  })
+  assume_role_policy = data.aws_iam_policy_document.lambda_role_doc.json
 }
 
 resource "aws_iam_policy" "lambda_policy" {
@@ -65,6 +64,10 @@ resource "aws_iam_policy" "lambda_policy" {
   })
 }
 
+data "aws_iam_policy" "lambda_basic_execution" {
+  arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
 resource "aws_iam_role_policy_attachment" "lambda_sqs" {
   role       = aws_iam_role.lambda_role.name
   policy_arn = aws_iam_policy.lambda_policy.arn
@@ -72,7 +75,7 @@ resource "aws_iam_role_policy_attachment" "lambda_sqs" {
 
 resource "aws_iam_role_policy_attachment" "logs_policy" {
   role       = aws_iam_role.lambda_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  policy_arn = data.aws_iam_policy.lambda_basic_execution.arn
 }
 
 resource "aws_lambda_function" "subscriber" {

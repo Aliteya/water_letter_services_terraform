@@ -35,23 +35,6 @@ locals {
         { name = "AWS_REGION", value = data.aws_region.current.id }
       ]
     }
-    # subscriber = {
-    #   family         = "demo-subscriber"
-    #   container_port = 80
-    #   image_tag      = "latest"
-    #   log_prefix     = "subscriber"
-    #   secrets = [
-    #     { "name" = "DATABASE_USER", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_USER" },
-    #     { "name" = "DATABASE_NAME", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_NAME" },
-    #     { "name" = "DATABASE_PORT", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_PORT" },
-    #     { "name" = "DATABASE_HOST", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_HOST" },
-    #     { "name" = "DATABASE_PASSWORD", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/database/DATABASE_PASSWORD" },
-    #     { "name" = "SQS_QUEUE_URL", "valueFrom" = "arn:aws:ssm:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:parameter/llm/SQS_QUEUE_URL" },
-    #   ]
-    #   environment = [
-    #     { name = "AWS_REGION", value = data.aws_region.current.id }
-    #   ]
-    # }
   }
 }
 
@@ -168,6 +151,8 @@ resource "aws_iam_role" "ecs_task_role" {
   assume_role_policy = data.aws_iam_policy_document.ecs_task_doc.json
 }
 
+# data "aws_iam_policy_document" ""
+
 resource "aws_iam_policy" "task_policy" {
   name = "tasks_policy"
 
@@ -215,7 +200,7 @@ resource "aws_iam_policy" "exec_task_policy" {
 
 resource "aws_iam_role_policy_attachment" "ecs_exec_role_policy" {
   role       = aws_iam_role.ecs_exec_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  policy_arn = data.aws_iam_policy.ecs_basic_execution.arn
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_exec_role_policy_custom" {
@@ -266,6 +251,13 @@ resource "aws_security_group" "ecs_tasks" {
     to_port         = local.app_port
     security_groups = [var.alb_sg_id]
   }
+  ingress {
+    description = "Allow tasks to communicate with each other"
+    protocol    = "-1" 
+    from_port   = 0   
+    to_port     = 0
+    self        = true
+  }
   # ingress {
   #     from_port       = 0 
   #     to_port         = 0
@@ -286,7 +278,10 @@ resource "aws_ecs_service" "apps" {
   name                 = each.key
   task_definition      = aws_ecs_task_definition.apps[each.key].arn
   desired_count        = 1
+  deployment_maximum_percent         = 100 
+  deployment_minimum_healthy_percent = 0
   force_new_deployment = true
+
 
   network_configuration {
     security_groups = [aws_security_group.ecs_tasks.id]
