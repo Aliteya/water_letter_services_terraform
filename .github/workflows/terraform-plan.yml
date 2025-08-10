@@ -30,7 +30,13 @@ jobs:
     - name: Terraform format
       id: fmt
       run: terraform fmt -recursive -check
-
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }}
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION}}
+    
     - name: Terraform Init
       id: init
       run: terraform init
@@ -39,11 +45,6 @@ jobs:
       id: validate
       run: terraform validate -no-color
       
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }}
-        aws-region: ${{ secrets.AWS_DEFAULT_REGION}}
     - name: Terraform plan
       env: 
         TF_VAR_region: ${{ secrets.AWS_DEFAULT_REGION }}
