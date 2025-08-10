@@ -1,0 +1,31 @@
+name: Remediate and retry pipeline
+
+on:
+  workflow_run:
+    workflows: ["terraform plan"]
+    types: [completed]
+
+jobs:
+    on-failure:
+        runs-on: ubuntu-latest
+        if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+        steps:
+            - name: trigger the ecr push in another repo
+              uses: peter-evans/repository-dispatch@v3
+              with:
+                token: '${{ secrets.ACTIONS_PAT }}'
+                repository: Aliteya/subscriber
+                event-type: trigger-build
+            - name: Wait for the build workflow to complete
+              uses: lewagon/wait-on-check-action@v1.3.4
+              with:
+                check-name: Build and Push image to ECR
+                repo: Aliteya/subscriber
+                repo-token: ${{ secrets.ACTIONS_PAT }}
+                wait-for-conclusion: true
+                timeout-seconds: 60
+                wait-interval-seconds: 10
+            - name: Re-run the failed workflow
+              env:
+                GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: gh run rerun ${{ github.event.workflow_run.id }}

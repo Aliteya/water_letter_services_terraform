@@ -65,43 +65,54 @@ jobs:
         name: tfplan
         path: dev/tfplan
 
-  # terraform-apply:
-  #   needs: infra_plan
-  #   name: Terraform apply
-  #   runs-on: ubuntu-latest
-  #   defaults:
-  #     run:
-  #       working-directory: ./dev 
-  #   environment: dev
+  terraform-apply:
+    needs: infra_plan
+    name: Terraform apply
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./dev 
+    environment: dev
 
-  #   permissions:
-  #     id-token: write
-  #     contents: read
+    permissions:
+      id-token: write
+      contents: read
 
-  #   steps:
-  #   - name: Checkout Repo
-  #     uses: actions/checkout@v4
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v4
 
-  #   - name: Configure AWS credentials
-  #     uses: aws-actions/configure-aws-credentials@v4
-  #     with:
-  #       role-to-assume: ${{ secrets.ADMIN_ACCESS_ARN}}
-  #       aws-region: ${{secrets.AWS_DEFAULT_REGION }} 
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }}
+        aws-region: ${{secrets.AWS_DEFAULT_REGION }} 
 
-  #   - name: Download plan artifact
-  #     uses: actions/download-artifact@v4
-  #     with: 
-  #       name: tfplan
-  #       path: dev/
+    - name: Download plan artifact
+      uses: actions/download-artifact@v4
+      with: 
+        name: tfplan
+        path: dev/
 
-  #   - name: Setup terraform
-  #     uses: hashicorp/setup-terraform@v1
-  #     with:
-  #         terraform_version: 1.12.1
-  #   - name: Terraform Init
-  #     run: terraform init -input=false
+    - name: Setup terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+          terraform_version: 1.12.1
+    - name: Terraform Init
+      run: terraform init -input=false
 
-  #   - name: terraform apply
-  #     run: terraform apply -auto-approve -input=false tfplan
+    - name: terraform apply
+      env: 
+        TF_VAR_region: ${{ secrets.AWS_DEFAULT_REGION }}
+        TF_VAR_cloudflare_id: ${{ secrets.CLOUDFLARE_ID }}
+        TF_VAR_cloudflare_api_token: ${{secrets.CLOUDFLARE_API_TOKEN }}
+        TF_VAR_llm_credentials: |
+          {
+            PROVIDER = "${{ secrets.PROVIDER }}"
+            MODEL_NAME = "${{ secrets.MODEL_NAME }}"
+            OPENROUTER_TOKEN = "${{ secrets.OPENROUTER_TOKEN }}"
+          }
+        TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
+      run: terraform apply -auto-approve -input=false tfplan
     
 
