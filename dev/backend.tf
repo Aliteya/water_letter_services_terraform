@@ -4,9 +4,9 @@ terraform {
     key    = "dev/terraform.tfstate"
     region = "eu-north-1"
     # profile = "trainee"
-    encrypt        = true
+    encrypt = true
     lock_table {
-        name = "terraform-lock"
+      name = "terraform-lock"
     }
   }
 }
