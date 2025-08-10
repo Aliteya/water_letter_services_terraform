@@ -4,9 +4,7 @@ terraform {
     key    = "dev/terraform.tfstate"
     region = "eu-north-1"
     # profile = "trainee"
-    encrypt = true
-    lock_table {
-      name = "terraform-lock"
-    }
+    dynamodb_table = "terraform-lock"
+    encrypt        = true
   }
 }
