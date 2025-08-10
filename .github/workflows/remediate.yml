@@ -17,14 +17,13 @@ jobs:
                 repository: Aliteya/subscriber
                 event-type: trigger-build
             - name: Wait for the build workflow to complete
+              timeout-minutes: 5
               uses: lewagon/wait-on-check-action@v1.3.4
               with:
                 check-name: Build and Push image to ECR
+                ref: 'main'
                 repo: Aliteya/subscriber
                 repo-token: ${{ secrets.ACTIONS_PAT }}
-                wait-for-conclusion: true
-                timeout-seconds: 60
-                wait-interval-seconds: 10
             - name: Re-run the failed workflow
               env:
                 GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
