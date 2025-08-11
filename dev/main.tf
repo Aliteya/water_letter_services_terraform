@@ -14,13 +14,16 @@ data "tls_certificate" "github" {
   url = "tls://${var.github_url}:443"
 }
 
-resource "aws_iam_openid_connect_provider" "github" {
-  url            = "https://${var.github_url}"
-  client_id_list = [var.aud_value]
-  thumbprint_list = [
-    data.tls_certificate.github.certificates[length(data.tls_certificate.github.certificates) - 1].sha1_fingerprint
-  ]
+data "aws_iam_openid_connect_provider" "github" {
+  url = "https://token.actions.githubusercontent.com"
 }
+# resource "aws_iam_openid_connect_provider" "github" {
+#   url            = "https://${var.github_url}"
+#   client_id_list = [var.aud_value]
+#   thumbprint_list = [
+#     data.tls_certificate.github.certificates[length(data.tls_certificate.github.certificates) - 1].sha1_fingerprint
+#   ]
+# }
 
 data "aws_iam_policy_document" "github_backend_policy_doc" {
   statement {
@@ -51,7 +54,7 @@ module "oidc_tokens_backend" {
   match_field                 = var.match_field
   match_value                 = var.match_value_back
   iam_policy_json             = data.aws_iam_policy_document.github_backend_policy_doc.json
-  openid_connect_provider_arn = aws_iam_openid_connect_provider.github.arn
+  openid_connect_provider_arn = data.aws_iam_openid_connect_provider.github.arn
 }
 
 module "s3" {
@@ -91,7 +94,7 @@ module "oidc_tokens_frontend" {
   match_field                 = var.match_field
   match_value                 = var.match_value_front
   iam_policy_json             = data.aws_iam_policy_document.github_frontend_policy_doc.json
-  openid_connect_provider_arn = aws_iam_openid_connect_provider.github.arn
+  openid_connect_provider_arn = data.aws_iam_openid_connect_provider.github.arn
 }
 
 module "vpc" {
